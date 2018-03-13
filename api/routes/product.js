@@ -1,6 +1,8 @@
 const router = require('express').Router()
 const Product = require('../models/product')
 const mongoose = require('mongoose')
+const checkAuth = require('../middlware/check-auth')
+
 
 //region multer (upload) middleware config
 const multer = require('multer')
@@ -85,7 +87,7 @@ router.get('/:productId', (req, res, next) => {
 })
 //#endregion
 //region POST
-router.post('/', upload.single('productImage'), (req, res, next) => {
+router.post('/', checkAuth, upload.single('productImage'), (req, res, next) => {
     console.log(req.file)
     const product = new Product({
         _id: new mongoose.Types.ObjectId(),
@@ -94,21 +96,22 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
         productImage: req.file.path
     })
 
-    product.save().then(result => {
-        console.log(result)
-        res.status(200).json({
-            message: 'Created product succesfully',
-            createdProduct: {
-                name: result.name,
-                price: result.price,
-                _id: result._id,
-                request: {
-                    type: 'GET',
-                    url: 'http://localhost:3000/products/' + result._id
+    product.save()
+        .then(result => {
+            console.log(result)
+            res.status(200).json({
+                message: 'Created product succesfully',
+                createdProduct: {
+                    name: result.name,
+                    price: result.price,
+                    _id: result._id,
+                    request: {
+                        type: 'GET',
+                        url: 'http://localhost:3000/products/' + result._id
+                    }
                 }
-            }
+            })
         })
-    })
         .catch(err => {
             console.log(err)
             res.status(500).json({
@@ -120,7 +123,7 @@ router.post('/', upload.single('productImage'), (req, res, next) => {
 })
 //#endregion
 //region PATCH
-router.patch('/:productId', (req, res, next) => {
+router.patch('/:productId', checkAuth, (req, res, next) => {
     const id = req.params.productId
     const updateOps = {}
 
@@ -142,7 +145,7 @@ router.patch('/:productId', (req, res, next) => {
 })
 //#endregion
 //region DELETE
-router.delete('/:productId', (req, res, next) => {
+router.delete('/:productId', checkAuth, (req, res, next) => {
     const id = req.params.productId
     Product.remove({ _id: id })
         .exec()

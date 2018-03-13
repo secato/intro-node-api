@@ -2,12 +2,10 @@ const router = require('express').Router()
 const mongoose = require('mongoose')
 const Order = require('../models/order')
 const Product = require('../models/product')
+const checkAuth = require('../middlware/check-auth')
 
-
-
-
-//#region GET
-router.get('/', (req, res, next) => {
+//region GET
+router.get('/', checkAuth, (req, res, next) => {
     Order.find()
         .select('product quantity _id')
         .populate('product', 'name')
@@ -22,7 +20,7 @@ router.get('/', (req, res, next) => {
                         quantity: doc.quantity,
                         request: {
                             type: 'GET',
-                            url: 'http://localhost:3000/orders' + doc._id
+                            url: 'http://localhost:3000/orders/' + doc._id
                         }
                     }
                 })
@@ -34,7 +32,7 @@ router.get('/', (req, res, next) => {
             })
         })
 })
-router.get('/:orderId', (req, res, next) => {
+router.get('/:orderId', checkAuth, (req, res, next) => {
     Order.findById(req.params.orderId)
         .select('_id quantity product')
         .populate('product')
@@ -57,10 +55,9 @@ router.get('/:orderId', (req, res, next) => {
             })
         })
 })
-//#endregion
-
-//#region POST
-router.post('/', (req, res, next) => {
+//endregion
+//region POST
+router.post('/', checkAuth, (req, res, next) => {
     // verificando se existe o produto
     Product.findById(req.body.productId)
         .then(product => {
@@ -100,10 +97,9 @@ router.post('/', (req, res, next) => {
         })
 }
 )
-//#endregion
-
-//#region DELETE
-router.delete('/:orderId', (req, res, next) => {
+//endregion
+//region DELETE
+router.delete('/:orderId', checkAuth, (req, res, next) => {
     Order.remove({ _id: req.params.orderId })
         .exec()
         .then(result => {
@@ -120,6 +116,6 @@ router.delete('/:orderId', (req, res, next) => {
         })
 
 })
-//#endregio
+//endregion
 
 module.exports = router
