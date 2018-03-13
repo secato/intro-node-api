@@ -33,7 +33,7 @@ app.use((req, res, next) => {
     the last route is the default for not defined routes
  */
 app.use('/products', require('./api/routes/product'))
-app.use('/orders', require('./api/routes/orders'))
+app.use('/orders', require('./api/routes/order'))
 app.use('/user', require('./api/routes/user'))
 app.use((req, res, next) => { 
     const error = new Error('Not found')

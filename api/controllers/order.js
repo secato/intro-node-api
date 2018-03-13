@@ -1,11 +1,8 @@
-const router = require('express').Router()
 const mongoose = require('mongoose')
 const Order = require('../models/order')
 const Product = require('../models/product')
-const checkAuth = require('../middlware/check-auth')
 
-//region GET
-router.get('/', checkAuth, (req, res, next) => {
+exports.get_all = (req, res, next) => {
     Order.find()
         .select('product quantity _id')
         .populate('product', 'name')
@@ -31,8 +28,9 @@ router.get('/', checkAuth, (req, res, next) => {
                 error: err
             })
         })
-})
-router.get('/:orderId', checkAuth, (req, res, next) => {
+}
+
+exports.get_by_id = (req, res, next) => {
     Order.findById(req.params.orderId)
         .select('_id quantity product')
         .populate('product')
@@ -54,10 +52,9 @@ router.get('/:orderId', checkAuth, (req, res, next) => {
                 error: err
             })
         })
-})
-//endregion
-//region POST
-router.post('/', checkAuth, (req, res, next) => {
+}
+
+exports.create_order = (req, res, next) => {
     // verificando se existe o produto
     Product.findById(req.body.productId)
         .then(product => {
@@ -96,10 +93,8 @@ router.post('/', checkAuth, (req, res, next) => {
             })
         })
 }
-)
-//endregion
-//region DELETE
-router.delete('/:orderId', checkAuth, (req, res, next) => {
+
+exports.delete_order = (req, res, next) => {
     Order.remove({ _id: req.params.orderId })
         .exec()
         .then(result => {
@@ -115,7 +110,4 @@ router.delete('/:orderId', checkAuth, (req, res, next) => {
             res.status(500).json({ error: err })
         })
 
-})
-//endregion
-
-module.exports = router
+}
